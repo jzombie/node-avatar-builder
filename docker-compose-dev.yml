@@ -1,0 +1,15 @@
+version: "3.3"
+
+services:
+  avatar:
+    build: .
+    container_name: avatar
+    command: ["nodemon", "server.js"]
+    environment:
+      NODE_ENV: development # TODO: Only during development
+    volumes:
+      - ./:/app
+    ports:
+      - 3000:3000
+    expose:
+      - 3000
