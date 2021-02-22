@@ -7,7 +7,7 @@ const PORT = process.env.port || 3000;
 app.get("/", async (req, res) => {
   const { query } = req;
 
-  const { engine, string, size = 500 } = query;
+  const { engine, string, size = 500, outputType = "image" } = query;
 
   // Allow engine to contain optional "Builder" suffix
   const avatarEngine = `${engine.replace("Builder", "")}Builder`;
@@ -29,9 +29,21 @@ app.get("/", async (req, res) => {
     });
     const buffer = await avatarInstance.create(string);
 
-    res.setHeader("Content-Disposition", "inline;");
-    res.setHeader("Content-Type", "image/png");
-    res.send(buffer);
+    switch (outputType) {
+      case "image":
+        res.setHeader("Content-Disposition", "inline;");
+        res.setHeader("Content-Type", "image/png");
+        res.send(buffer);
+        break;
+
+      case "base64":
+        const encoded = await buffer.toString("base64");
+        res.send(`data:image/png;base64,${encoded}`);
+        break;
+
+      default:
+        throw new TypeError(`Invalid output type ${outputType}`);
+    }
   } catch (err) {
     console.error(err);
 
